@@ -1,0 +1,53 @@
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace ConsoleApp1
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            IWebDriver webDriver = new ChromeDriver();
+            webDriver.Manage().Window.Maximize();
+            webDriver.Navigate().GoToUrl("https://www.saucedemo.com");
+
+            webDriver.FindElement(By.Id("user-name")).SendKeys("standard_user");
+            webDriver.FindElement(By.Id("password")).SendKeys("secret_sauce");
+            webDriver.FindElement(By.CssSelector("#login-button")).Click();
+
+            // add three products to cart
+            webDriver.FindElement(By.CssSelector("#add-to-cart-sauce-labs-backpack")).Click();
+            webDriver.FindElement(By.CssSelector("#add-to-cart-sauce-labs-bike-light")).Click();
+            webDriver.FindElement(By.CssSelector("#add-to-cart-sauce-labs-bolt-t-shirt")).Click();
+
+            // go to cart and checkout
+            webDriver.FindElement(By.CssSelector("#shopping_cart_container")).Click();
+            webDriver.FindElement(By.CssSelector(".checkout_button")).Click();
+
+            // fill three text fields and continue
+            webDriver.FindElement(By.CssSelector("#first-name")).SendKeys("John");
+            webDriver.FindElement(By.CssSelector("#last-name")).SendKeys("Doe");
+            webDriver.FindElement(By.CssSelector("#postal-code")).SendKeys("12345");
+            webDriver.FindElement(By.CssSelector(".cart_button")).Click();
+
+            // assert expected price is correct
+            var expectedTotal = "$60.45";
+            var actualTotal = webDriver.FindElement(By.CssSelector(".summary_total_label")).Text.Substring(7);
+            Assert.AreEqual(expectedTotal, actualTotal);
+
+            // finish and assert "THANK YOU FOR YOUR ORDER" message appeared
+            webDriver.FindElement(By.CssSelector(".cart_button")).Click();
+            var thankYouMsg = webDriver.FindElement(By.CssSelector(".complete-header")).Text;
+            Assert.AreEqual("THANK YOU FOR YOUR ORDER", thankYouMsg);
+
+            Console.ReadLine();
+            webDriver.Quit();
+        }
+    }
+}
